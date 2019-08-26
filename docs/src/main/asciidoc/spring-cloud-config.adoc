@@ -759,13 +759,19 @@ $ vault write secret/application foo=bar baz=bam
 
 ===== CredHub Server
 
-When using CredHub as a backend, you can share configuration with all applications by placing configuration in `/application/`.
+When using CredHub as a backend, you can share configuration with all applications by placing configuration in `/application/` or by placing it in the `default` profile for the application.
 For example, if you run the following CredHub command, all applications using the config server will have the properties `shared.color1` and `shared.color2` available to them:
 
 [source,sh]
 ----
-credhub set --name "/application/default/master/shared" --type=json
+credhub set --name "/application/profile/master/shared" --type=json
 value: {"shared.color1": "blue", "shared.color": "red"}
+----
+
+[source,sh]
+----
+credhub set --name "/my-app/default/master/more-shared" --type=json
+value: {"shared.word1": "hello", "shared.word2": "world"}
 ----
 
 ==== JDBC Backend

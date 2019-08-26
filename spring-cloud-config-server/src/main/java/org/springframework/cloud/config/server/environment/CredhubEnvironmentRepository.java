@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.config.server.environment;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,6 +66,10 @@ public class CredhubEnvironmentRepository implements EnvironmentRepository {
 			if (!DEFAULT_APPLICATION.equals(application)) {
 				properties.putAll(findProperties(DEFAULT_APPLICATION, profile, label));
 			}
+		}
+
+		if (!Arrays.asList(profiles).contains(DEFAULT_PROFILE)) {
+			properties.putAll(findProperties(application, DEFAULT_PROFILE, label));
 		}
 
 		environment.add(new PropertySource("credhub-" + application, properties));
