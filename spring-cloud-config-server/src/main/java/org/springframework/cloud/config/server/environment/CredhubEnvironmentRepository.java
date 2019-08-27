@@ -17,7 +17,6 @@
 package org.springframework.cloud.config.server.environment;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.cloud.config.environment.Environment;
@@ -60,21 +59,37 @@ public class CredhubEnvironmentRepository implements EnvironmentRepository {
 
 		Environment environment = new Environment(application, profiles, label, null,
 				null);
-		Map<Object, Object> properties = new HashMap<>();
 		for (String profile : profiles) {
-			properties.putAll(findProperties(application, profile, label));
+			environment.add(new PropertySource(
+					"credhub-" + application + "-" + profile + "-" + label,
+					findProperties(application, profile, label)));
 			if (!DEFAULT_APPLICATION.equals(application)) {
-				properties.putAll(findProperties(DEFAULT_APPLICATION, profile, label));
+				addDefaultPropertySource(environment, DEFAULT_APPLICATION, profile,
+						label);
 			}
 		}
 
 		if (!Arrays.asList(profiles).contains(DEFAULT_PROFILE)) {
-			properties.putAll(findProperties(application, DEFAULT_PROFILE, label));
+			addDefaultPropertySource(environment, application, DEFAULT_PROFILE, label);
 		}
 
-		environment.add(new PropertySource("credhub-" + application, properties));
+		if (!Arrays.asList(profiles).contains(DEFAULT_PROFILE)
+				&& !DEFAULT_APPLICATION.equals(application)) {
+			addDefaultPropertySource(environment, DEFAULT_APPLICATION, DEFAULT_PROFILE,
+					label);
+		}
 
 		return environment;
+	}
+
+	private void addDefaultPropertySource(Environment environment, String application,
+			String profile, String label) {
+		Map<Object, Object> properties = findProperties(application, profile, label);
+		if (!properties.isEmpty()) {
+			PropertySource propertySource = new PropertySource(
+					"credhub-" + application + "-" + profile + "-" + label, properties);
+			environment.add(propertySource);
+		}
 	}
 
 	private Map<Object, Object> findProperties(String application, String profile,
